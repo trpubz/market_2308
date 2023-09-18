@@ -18,4 +18,10 @@ class Vendor
       inventory[item] = 0
     end
   end
+
+  def potential_revenue
+    @inventory.reduce(0) do |tot, inv_item|
+      tot + inv_item[1] * inv_item[0].price
+    end
+  end
 end
