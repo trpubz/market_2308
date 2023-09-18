@@ -1,9 +1,12 @@
+require "date"
+
 class Market
-  attr_reader :name, :vendors
+  attr_reader :name, :vendors, :date
 
   def initialize(name)
     @name = name
     @vendors = []
+    @date = Date.today.strftime('%d/%m/%Y')
   end
 
   def add_vendor(vendor)
@@ -48,5 +51,27 @@ class Market
 
   def sorted_item_list
     total_inventory.keys.map(&:name).sort
+  end
+
+  def sell(item, qty)
+    item_inventory = total_inventory[item]
+    if item_inventory[:quantity] >= qty
+      sold = 0
+      item_inventory[:vendors].each do |vendor|
+        in_stock = vendor.check_stock(item)
+        if in_stock <= qty - sold
+          sold += in_stock
+          vendor.stock(item, -in_stock)
+        else
+          selling = qty - sold
+          sold += selling
+          vendor.stock(item, -selling)
+          break
+        end
+      end
+      true
+    else
+      false
+    end
   end
 end

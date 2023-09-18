@@ -2,6 +2,7 @@ require "spec_helper"
 
 RSpec.describe Market do
   before(:each) do
+    allow(Date).to receive(:today).and_return(Date.new(2023, 2, 24))
     @market = Market.new("South Pearl Street Farmers Market")
     @vendor1 = Vendor.new("Rocky Mountain Fresh")
     @item1 = Item.new({name: "Peach", price: "$0.75"})
@@ -118,6 +119,28 @@ RSpec.describe Market do
         "Peach",
         "Peach-Raspberry Nice Cream",
         "Tomato"]
+    end
+  end
+
+  describe "@date" do
+    it "returns 'dd/mm/yyyy'" do
+      expect(@market.date).to eq "24/02/2023"
+    end
+  end
+
+  describe "#sell" do
+    before do
+      @market.add_vendor(@vendor1)
+      @market.add_vendor(@vendor2)
+      @market.add_vendor(@vendor3)
+    end
+
+    it "returns ability to sell item given inventory" do
+      expect(@market.sell(@item1, 40)).to eq true
+      expect(@vendor1.check_stock(@item1)).to eq 0
+      expect(@vendor3.check_stock(@item1)).to eq 60
+
+      expect(@market.sell(@item3, 300)).to eq false
     end
   end
 end
